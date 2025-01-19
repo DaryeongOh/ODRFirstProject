@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
-import homescreenImage from '../assets/images/homescreenimage.png'; // Import the homescreen image
+import StopwatchScreen from './StopwatchScreen'; // Adjust the path if needed
+
 
 interface SplashScreenProps {
   navigation: any; // You can replace 'any' with a more specific type if available
@@ -19,38 +20,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ navigation }) => {
         Goal-illa는 서울대 재학생으로 구성된 개발팀이 만든 스터디 플래너 앱입니다.
       </Text>
 
-      {/* 홈화면 미리보기 */}
-
-      <Image
-        source={homescreenImage}
-        style={styles.previewImage}
-        resizeMode="contain"
-      />
-
-
-      {/* 설명 */}
-      <Text style={styles.description}>
-        가용시간을 입력하면, 공부 목표에 맞는 분량을 자동으로 분배해 드립니다.
-      </Text>
-
-      {/* 네비게이션 바 */}
-      <View style={styles.navBar}>
-        {/* To-do list 버튼 */}
-        <TouchableOpacity
-          style={styles.navButton}
-          onPress={() => navigation.navigate('TodoList')}
-        >
-          <Text style={styles.navButtonText}>☑</Text>
-        </TouchableOpacity>
-
-        {/* 통계 리포트 버튼 */}
-        <TouchableOpacity
-          style={styles.navButton}
-          onPress={() => navigation.navigate('Statistics')}
-        >
-          <Text style={styles.navButtonText}>📊</Text>
-        </TouchableOpacity>
-      </View>
+      {/* 이미지 */}
     </View>
   );
 };
@@ -58,48 +28,21 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    justifyContent: 'center',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 20,
   },
   headerText: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: 'bold',
-    textAlign: 'center',
-    marginVertical: 10,
   },
   subText: {
     fontSize: 16,
-    textAlign: 'center',
-    marginHorizontal: 20,
-    color: '#555',
+    marginVertical: 10,
   },
   previewImage: {
     width: 200,
     height: 200,
-    marginVertical: 10,
-  },
-  description: {
-    fontSize: 14,
-    textAlign: 'center',
-    marginHorizontal: 20,
-    color: '#555',
-  },
-  navBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
-    backgroundColor: '#000',
-    paddingVertical: 10,
-  },
-  navButton: {
-    padding: 10,
-  },
-  navButtonText: {
-    fontSize: 18,
-    color: '#fff',
   },
 });
 
-export default SplashScreen;
+export default StopwatchScreen;
