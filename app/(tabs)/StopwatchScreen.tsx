@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
 
 interface TodoItem {
@@ -36,17 +36,16 @@ const todoData: TodoItem[] = [
 ];
 
 const StopwatchScreen: React.FC = () => {
-  const [mainTimer, setMainTimer] = useState(0);
+  const [mainTimer, setMainTimer] = useState(0);  // This counts total seconds
   const [categoryTimers, setCategoryTimers] = useState<Record<string, number>>({});
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [isRunning, setIsRunning] = useState(false);
+  const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
 
-  // Start or pause the timers
-  const toggleTimer = () => {
-    setIsRunning(!isRunning);
-    if (!isRunning) {
-      const interval = setInterval(() => {
-        setMainTimer((prev) => prev + 1);
+  useEffect(() => {
+    if (isRunning) {
+      const id = setInterval(() => {
+        setMainTimer((prev) => prev + 1); // Increment total seconds
         if (activeCategory) {
           setCategoryTimers((prev) => ({
             ...prev,
@@ -54,19 +53,28 @@ const StopwatchScreen: React.FC = () => {
           }));
         }
       }, 1000);
-      return () => clearInterval(interval);
+      setIntervalId(id);
+    } else {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
     }
-  };
 
-  const handleStop = () => {
-    setIsRunning(false);
-    setMainTimer(0);
-    setActiveCategory(null);
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [isRunning, activeCategory]);
+
+  const handlePlayPause = () => {
+    setIsRunning(!isRunning);
   };
 
   const selectCategory = (category: string) => {
     if (!isRunning) {
       setActiveCategory(category);
+      setIsRunning(true);  // Start the timer when a category is selected
     }
   };
 
@@ -85,6 +93,15 @@ const StopwatchScreen: React.FC = () => {
     </View>
   );
 
+  // Format the total seconds into HH:MM:SS format
+  const formatTime = (seconds: number) => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const remainingSeconds = seconds % 60;
+
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+
   return (
     <View style={styles.container}>
       {/* Mini Stopwatch for Category */}
@@ -93,11 +110,13 @@ const StopwatchScreen: React.FC = () => {
       </Text>
 
       {/* Main Stopwatch */}
-      <Text style={styles.mainTimer}>{mainTimer}s</Text>
+      <Text style={styles.mainTimer}>{formatTime(mainTimer)}</Text>
 
-      {/* Stop Button */}
-      <TouchableOpacity onPress={handleStop} style={styles.stopButton}>
-        <Text style={styles.stopButtonText}>Stop</Text>
+      {/* Play/Pause Button */}
+      <TouchableOpacity onPress={handlePlayPause} style={styles.playPauseButton}>
+        <Text style={styles.playPauseButtonText}>
+          {isRunning ? '||' : '▶'} {/* '▶' is the play button, '||' is the pause button */}
+        </Text>
       </TouchableOpacity>
 
       {/* Todo List */}
@@ -107,16 +126,6 @@ const StopwatchScreen: React.FC = () => {
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.todoList}
       />
-
-      {/* Navigation Bar */}
-      <View style={styles.navBar}>
-        <TouchableOpacity style={styles.navButton}>
-          <Text style={styles.navText}>Report</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}>
-          <Text style={styles.navText}>Todo</Text>
-        </TouchableOpacity>
-      </View>
     </View>
   );
 };
@@ -139,16 +148,16 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 20,
   },
-  stopButton: {
+  playPauseButton: {
     alignSelf: 'center',
-    padding: 10,
+    padding: 20,
     backgroundColor: '#ff5555',
-    borderRadius: 10,
+    borderRadius: 50,
     marginBottom: 20,
   },
-  stopButtonText: {
+  playPauseButtonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 32,
   },
   todoList: {
     marginTop: 10,
@@ -172,19 +181,6 @@ const styles = StyleSheet.create({
   },
   todoText: {
     color: '#fff',
-  },
-  navBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingVertical: 10,
-    backgroundColor: '#222',
-  },
-  navButton: {
-    padding: 10,
-  },
-  navText: {
-    color: '#fff',
-    fontSize: 16,
   },
 });
 
